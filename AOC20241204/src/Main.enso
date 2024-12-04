@@ -1,0 +1,142 @@
+from Standard.Base import all
+from Standard.Table import all
+from Standard.Database import all
+from Standard.AWS import all
+from Standard.Google_Api import all
+from Standard.Snowflake import all
+import Standard.Examples
+import Standard.Visualization
+
+h = 140
+w = 140
+
+## ICON group
+r_u lines i j =
+    line = lines.at i
+    res = line.take (..By_Index [j, j+1, j+2, j+3])
+    res
+
+## ICON group
+r lines i j =
+    res = if i<h && j<w-3 then (Main.r_u lines i j) else Nothing
+    res
+
+## ICON group
+l_u lines i j =
+    line = lines.at i
+    res = line.take (..By_Index [j, j-1, j-2, j-3])
+    res
+
+## ICON group
+l lines i j =
+   res = if i<h && j<w && j>2 then (Main.l_u lines i j) else Nothing
+   res
+
+## ICON group
+d_u lines i j =
+    chars = [i,i+1,i+2,i+3].map (ix-> (lines.at ix).at j)
+    res = chars.join
+    res
+
+## ICON group
+d lines i j =
+   res = if i<h-3 && j<w then (Main.d_u lines i j) else Nothing
+   res
+
+## ICON group
+u_u lines i j =
+    chars = [i,i-1,i-2,i-3].map (ix-> (lines.at ix).at j)
+    res = chars.join
+    res
+
+## ICON group
+u lines i j =
+   res = if i<h && i>2 && j<w then (Main.u_u lines i j) else Nothing
+   res
+
+## ICON group
+ur_u lines i j =
+    ixs = [i,i-1,i-2,i-3].zip [j,j+1,j+2,j+3]
+    chars = ixs.map (ix-> (lines.at (ix.at 0)).at (ix.at 1))
+    res = chars.join
+    res
+
+## ICON group
+ur lines i j =
+   res = if i<h && i>2 && j<w-3 then (Main.ur_u lines i j) else Nothing
+   res
+
+## ICON group
+dr_u lines i j =
+    ixs = [i,i+1,i+2,i+3].zip [j,j+1,j+2,j+3]
+    chars = ixs.map (ix-> (lines.at (ix.at 0)).at (ix.at 1))
+    res = chars.join
+    res
+
+## ICON group
+dr lines i j =
+   res = if i<h-3 && j<w-3 then (Main.dr_u lines i j) else Nothing
+   res
+
+## ICON group
+dl_u lines i j =
+    ixs = [i,i+1,i+2,i+3].zip [j,j-1,j-2,j-3]
+    chars = ixs.map (ix-> (lines.at (ix.at 0)).at (ix.at 1))
+    res = chars.join
+    res
+
+## ICON group
+dl lines i j =
+   res = if i<h-3 && j<w && j>2 then (Main.dl_u lines i j) else Nothing
+   res
+
+## ICON group
+ul_u lines i j =
+    ixs = [i,i-1,i-2,i-3].zip [j,j-1,j-2,j-3]
+    chars = ixs.map (ix-> (lines.at (ix.at 0)).at (ix.at 1))
+    res = chars.join
+    res
+
+## ICON group
+ul lines i j =
+   res = if i<h && i>2 && j<w && j>2 then (Main.ul_u lines i j) else Nothing
+   res
+
+## ICON group
+xmas_u lines i j =
+    ixs = [i,i-1,i-1,i+1,i+1].zip [j,j-1,j+1,j+1,j-1]
+    chars = ixs.map (ix-> (lines.at (ix.at 0)).at (ix.at 1))
+    res = chars.join
+    res
+
+## ICON group
+xmas lines i j =
+   res = if i<h-1 && i>0 && j<w-1 && j>0 then (Main.xmas_u lines i j) else Nothing
+   res
+
+find_part1 lines =
+    res = (0.up_to h).to_vector.flat_map i->
+      (0.up_to w).to_vector.flat_map j->
+        perms = [Main.r lines i j, Main.dr lines i j, Main.d lines i j, Main.dl lines i j, Main.l lines i j, Main.ul lines i j, Main.u lines i j, Main.ur lines i j]
+        perms.filter (== 'XMAS')
+    res
+
+find_part2 lines =
+    res = (0.up_to h).to_vector.flat_map i->
+      (0.up_to w).to_vector.flat_map j->
+        perms = [Main.xmas lines i j]
+        perms.filter p-> p=='AMSSM' || p=='AMMSS' || p=='ASSMM' || p=='ASMMS'
+    res
+
+main =
+    quot1 = enso_project.data / 'in.txt'
+    file1 = Data.read quot1
+    lines = file1.lines False
+    xms = Main.find_part2 lines
+    xms.length
+
+
+
+#### METADATA ####
+[[{"index":{"value":1153},"size":{"value":28}},"f65a1e23-d815-42a2-b58a-c2271a4ad322"],[{"index":{"value":1194},"size":{"value":15}},"f1b7c83f-42f7-45a2-a804-9e54bfc8e042"],[{"index":{"value":1222},"size":{"value":17}},"6c6da70a-e752-450a-b397-44a2409be1ce"],[{"index":{"value":1250},"size":{"value":92}},"4da01009-5483-48d9-b61d-ea8c7bf17a43"],[{"index":{"value":1251},"size":{"value":9}},"4da01009-5483-48d9-b61d-ea8c7bf17a43"],[{"index":{"value":1347},"size":{"value":1}},"0f0d49e1-d8c2-48ee-9e0f-a1fa9e4f6bae"],[{"index":{"value":1351},"size":{"value":3}},"0fe55e14-8385-4584-98d2-1e120c45e3f5"],[{"index":{"value":1351},"size":{"value":13}},"001bb390-7910-432b-8b5c-f1e09a89813e"]]
+{"ide":{"node":{"f65a1e23-d815-42a2-b58a-c2271a4ad322":{"position":{"vector":[-16,16]}},"f1b7c83f-42f7-45a2-a804-9e54bfc8e042":{"position":{"vector":[-16,-56]}},"6c6da70a-e752-450a-b397-44a2409be1ce":{"position":{"vector":[-16,-128]}},"4da01009-5483-48d9-b61d-ea8c7bf17a43":{"position":{"vector":[-94,-224]}},"0f0d49e1-d8c2-48ee-9e0f-a1fa9e4f6bae":{"position":{"vector":[-16,-296]}},"001bb390-7910-432b-8b5c-f1e09a89813e":{"position":{"vector":[-16,-296]},"visualization":{"show":true,"width":323.7333170572917}},"0fe55e14-8385-4584-98d2-1e120c45e3f5":{"position":{"vector":[-16,-296]},"visualization":{"show":true}}},"widget":{},"snapshot":"eJytlF1vmzAUhu/5FUeq1IKCvUJ3WSK1+1Iv1l1k2i6iCLnBhMOMzYxZ2H79ZCdNSEioKvXGB5/zHr/n4SvXqoKZYTJjOqP3rOGAVa20ASaElx9Uv7MnMVL+yAx7Gj3g7ufsfPGLUivB07saz2tmUq1zwX4deGwvd6JPHatqwZtB4Qc2LRP4jxlU0vMKSCB6f+2tt9G7uICHD98eYaVVW3utBoGSN4BQQuIBgNtDsklTZgBdVvNmm6TGjuZTev83fZAZ72BehlBOIrvEdrlZBM89x35Du83BmAPeFnB5CeXtmsRgCi7B/8pQ0v6IAXDRcHhUpkC5OmfSireCIhaKWCgyAjWwO8HkwvQQTIyBneLKBlzLgmnrNccQJ1GIkzjEyc2CVqwGHzsyBX/P3AU2lEGP3fXTUqE8Bzfw7MOR+Bmvz5W9lqsd5SJRiCQOkbwp18Dz+KHh9CRc+yJcxVBuMX63ykSQAJeNSmutSr40NGOGwTu4QklNZ66cMEfBrdD+XqjmLNu07t5dO5rT0M3uMxMN7/H617StU6OgCKhR6R++NEq7u4Vk6nSw16yPNeVOAzB3mL1vbuFKHSTWat/o/Qfdd5mS"}}
