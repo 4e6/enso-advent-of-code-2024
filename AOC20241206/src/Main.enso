@@ -1,0 +1,85 @@
+from Standard.Base import all
+from Standard.Table import all
+from Standard.Database import all
+from Standard.AWS import all
+from Standard.Google_Api import all
+from Standard.Snowflake import all
+import Standard.Examples
+import Standard.Visualization
+
+map_height = 130
+map_width = 130
+
+map_at i j map =
+    if i<0 || i>=map_height || j<0 || j>=map_width then 'E' else (map.at i).at j
+
+step i j direction map =
+    new_location = case direction of
+      'up' ->
+          loc = map_at i-1 j map
+          r = case loc of
+              '.' -> [i-1, j, direction]
+              '^' -> [i-1, j, direction]
+              '#' -> [i, j, 'right']
+              'E' -> Nothing
+          r
+      'right' ->
+          loc = map_at i j+1 map
+          r = case loc of
+              '.' -> [i, j+1, direction]
+              '^' -> [i, j+1, direction]
+              '#' -> [i, j, 'down']
+              'E' -> Nothing
+          r
+      'down' ->
+          loc = map_at i+1 j map
+          r = case loc of
+              '.' -> [i+1, j, direction]
+              '^' -> [i+1, j, direction]
+              '#' -> [i, j, 'left']
+              'E' -> Nothing
+          r
+      'left' ->
+          loc = map_at i j-1 map
+          r = case loc of
+              '.' -> [i, j-1, direction]
+              '^' -> [i, j-1, direction]
+              '#' -> [i, j, 'up']
+              'E' -> Nothing
+          r
+    new_location
+
+travel position map visited =
+    map_height = map.length
+    map_width = map.first.length
+    pi = position.at 0
+    pj = position.at 1
+    if pi<0 || pi>=map_height || pj<0 || pj>=map_width then visited else
+        direction = position.at 2
+        new_position = step pi pj direction map
+        if new_position.is_nothing then visited else
+            @Tail_Call travel new_position map visited+[[new_position.at 0, new_position.at 1]]
+
+find_start map =
+    posx = map.map_with_index ix-> row->
+       jx = row.index_of '^'
+       if jx.is_nothing then Nothing else [ix, jx, 'up']
+    locx = posx.filter p-> p.is_nothing.not
+    loc = locx.first
+    loc
+
+main =
+    quot1 = enso_project.data / "in.txt"
+    file1 = Data.read quot1
+    map = file1.lines
+    start_position = find_start map
+    start_position
+    visited = travel start_position map [[start_position.at 0, start_position.at 1]]
+    visited_distinct = visited.distinct
+    visited_distinct.length
+
+
+
+#### METADATA ####
+[]
+{"ide":{"node":{"0ac8a010-f0f3-4b72-96cf-69ee8fd7561d":{"position":{"vector":[-16,16]}},"6a59de8e-2ad3-47fe-87e1-0fc79309a60a":{"position":{"vector":[-16,-56]}},"36494f23-93b2-45ee-8eaf-8a7779dab7a7":{"position":{"vector":[-16,-128]}},"09991796-c960-4b6d-a916-a4ee9e44cc37":{"position":{"vector":[-16,-200]}},"8abeb83e-7d22-46c4-beed-07ebd06026b1":{"position":{"vector":[-16,-272]}},"487b7477-28af-4f79-9b9b-9d3770d4968f":{"position":{"vector":[-16,-344]}},"ec56894e-2156-44a1-8bf6-d24dac5dc7d3":{"position":{"vector":[-16,-416]}},"5a23d76b-97c0-4776-bedb-68e8c96abb8d":{"position":{"vector":[-16,-488]}}},"widget":{},"snapshot":"eJydVU2P2jAQvedXjLYHWkFS0r02qNsP9dbLrtoDopE3ccikxnZts0QVP76yEwcHWBZtDoi8eR77zXheKiU2cG8IL4kqk89EU8CNFMoAYSyqRtEH8sguhL8SQx4vJrj7df988LsQa0bzO4nPc+652FWM/Bnt0f8dSN9aspGM6pPAT9RbwvAfMSh4FG2IzGuK69pABunt3AE7LE3dvzuAGEBoYEMkZBEAAFaAH+ew3wMusiDHfg9Nhzcd3qUyNeUwSSZAmabwdkNkYlO+s79NFGlDpdugREULe7BgK053OROFOy9kUNjiHniiciSAyVZOIF70b/ZhooAM/PHjtBMQEJRPZ5lDIv/Y48YLWGKczqCZHfZcHRN/X0t80xMdbaJsxSYhSXktXeiSHGim6evkzOzSa+S8SBzLKcWOn1fjIpfETF/dm+m1vXmROBbDaPVMa1zkcmfi13cmvrYzl4ljMVt5Rko4VlFkFHmiDKTQOIzfE2o0tOzHcGQUdoAZ5WtTDzHvGTZUodImJEiEbEhuh37ewc0RnHpzkb27yBN7kb2/yFOD8Qe2JjPoPVjFeKsPA8NWYhCegTMjifZwIzsa+J8eCLL8C2EM+rKNMgSlmy6XYcgJn8ExlK5WUVQhL3NtiDKB9Umh276knVRT58hL2gK28QKU2B3uYWOZSuwSR8hFZa+LD2IFTZugzrkwNfJ1V68f/Ysz5SW2M2ja8LowUbRd1dqkQmaoAhkvQAaJEi6M50LmVnTd96D9fiDv9fzdCpNCBpRrkUslGlqYpCSGwHu4QZ6Y1tw4YoWMWqL9miaKkrJb6i8bZB0jYcipdqgrXdjGcUHPcBw03HHfyqM8drPlGFuFC/MStUFe2KHoocRDkR/9Y66fjP8GcnR4"}}
