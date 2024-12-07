@@ -1,0 +1,110 @@
+from Standard.Base import all
+from Standard.Table import all
+from Standard.Database import all
+from Standard.AWS import all
+from Standard.Google_Api import all
+from Standard.Snowflake import all
+import Standard.Examples
+import Standard.Visualization
+import local.AOC20241207
+
+two_ops = ['+', '*']
+three_ops = ['+', '*', '|']
+
+## ICON group
+parse_equation any1 =
+    any2 = any1.split ':'
+    node1 = any2.at 0
+    any3 = node1.to_decimal
+    node2 = any2.at 1
+    any4 = node2.split ' '
+    node3 = any4.drop 1
+    node4 = node3.map .to_decimal
+    vector2 = [any3, node4]
+    vector2
+
+combinations k xs =
+    case k of
+        1 ->
+            xs.map x-> [x]
+        _ ->
+            xs.flat_map x->
+                (combinations k-1 xs).map p->
+                    [x]+p
+
+digits n =
+    go n c = if n < 10 then c else @Tail_Call go (n.div 10) c+1
+    go n 1
+
+concat_numbers1 left right =
+    mult = 10 ^ (digits right)
+    left*mult + right
+
+concat_numbers left right =
+    go shift = if shift <= right then @Tail_Call go shift*10 else shift
+    mult = go 1
+    left*mult + right
+
+compute_op max nums ops =
+    nums.zip ops . fold 0 res-> p->
+        if res > max then res else
+            n = p.at 0
+            op = p.at 1
+            case op of
+                '+' -> res+n
+                '*' -> res*n
+                '|' -> concat_numbers res n
+                '#' -> n
+
+compute_equation operations max equation =
+    ops = combinations equation.length-1 operations
+    ops1 = ops.map op-> ['#']+op
+    res = ops1.map op-> compute_op max equation op
+    res.distinct
+
+## ICON group
+check_equation operations input =
+    candidate = input.at 0
+    equation = input.at 1
+    results = compute_equation operations candidate equation
+    boolean1 = results.contains candidate
+    boolean1
+
+check_equation_2 candidate index acc equation =
+    if acc > candidate then False else
+        if index >= equation.length then acc == candidate else
+            n = equation.at index
+            (check_equation_2 candidate index+1 acc+n equation) || (check_equation_2 candidate index+1 acc*n equation) || (check_equation_2 candidate index+1 (concat_numbers acc n) equation)
+
+has_solution_2 input =
+    candidate = input.at 0
+    equation = input.at 1
+    check_equation_2 candidate 1 (equation.at 0) equation
+
+main =
+    quot1 = enso_project.data / 'in.txt'
+    file1 = Data.read quot1
+    vector1 = file1.lines
+    any1 = vector1.first
+    vector2 = Main.parse_equation any1
+    node1 = vector1.map parse_equation
+    node2 = node1.partition_with_index i-> e->
+        # IO.println i
+        check_equation two_ops e
+    confirmed_two_ops = node2.at 0
+    two_ops_results = confirmed_two_ops.map p-> p.at 0
+    sum_two_ops = two_ops_results.fold 0 (+)
+    IO.println 'sum_two_ops='+sum_two_ops.to_text
+    unconfirmed_two_ops = node2.at 1
+    confirmed_three_ops = unconfirmed_two_ops.filter_with_index i-> e->
+        has_solution_2 e
+    three_ops_results = confirmed_three_ops.map p-> p.at 0
+    sum_three_ops = three_ops_results.running_fold 0 (+)
+    IO.println 'sum_three_ops='+sum_three_ops.to_text
+    IO.println 'res='+(sum_two_ops+sum_three_ops.last).to_text
+
+
+
+#### METADATA ####
+[[{"index":{"value":286},"size":{"value":10}},"0d3a497b-f2e9-4d17-abbe-230c937d3422"],[{"index":{"value":373},"size":{"value":10}},"ee2cf211-51f4-481b-a321-a185e2109206"],[{"index":{"value":373},"size":{"value":14}},"aac0f400-5fb4-4987-a12a-72977a061bce"],[{"index":{"value":400},"size":{"value":9}},"e2844bce-6d6c-487e-9068-4bc9d1f55aa5"],[{"index":{"value":421},"size":{"value":16}},"313fe398-5442-4aca-935d-c4e0c81ac14e"],[{"index":{"value":450},"size":{"value":9}},"553d5f06-d9d7-4bff-9f66-8efa45d700b7"],[{"index":{"value":471},"size":{"value":11}},"73768217-f7c2-4504-9a9f-f5ebd62dc58d"],[{"index":{"value":471},"size":{"value":15}},"dc842597-d416-412c-997a-912a77b4dccb"],[{"index":{"value":499},"size":{"value":11}},"c0a030bd-e641-4801-b4f1-5d83c392cc70"],[{"index":{"value":523},"size":{"value":21}},"92f0b3c4-d949-4588-9446-c55446537503"],[{"index":{"value":559},"size":{"value":13}},"b1e7592b-7e89-4850-917e-39e0c27ff50e"],[{"index":{"value":801},"size":{"value":1}},"97c3f067-04ae-4767-8d20-c1590432bbac"],[{"index":{"value":861},"size":{"value":14}},"f6abfe75-d613-4f12-ae93-3305d69226f0"],[{"index":{"value":1645},"size":{"value":10}},"595b0b39-17e4-4d30-a300-cd1e24384a07"],[{"index":{"value":1671},"size":{"value":10}},"31070036-351d-4010-ac9a-eca5872085b5"],[{"index":{"value":1696},"size":{"value":46}},"b65d2414-b10f-4d24-95f0-557cb3fccda1"],[{"index":{"value":1758},"size":{"value":16}},"4da5d7c6-bb0b-4b16-b9d5-7aae4ee79651"],[{"index":{"value":1758},"size":{"value":26}},"578fe1fd-eb6c-4fe8-9b67-3b0073b7155d"],[{"index":{"value":1818},"size":{"value":28}},"d2416b1d-49cf-4869-b91e-28d8b0500f63"],[{"index":{"value":1859},"size":{"value":9}},"06187768-8a43-434e-ba8d-287fe891f424"],[{"index":{"value":1859},"size":{"value":15}},"fcf199e6-d2b1-44b7-be92-a47545d6a593"],[{"index":{"value":1889},"size":{"value":11}},"0a5d8c4b-4f25-4ce6-8783-fa4180fa9128"],[{"index":{"value":1912},"size":{"value":13}},"fdc918cf-952d-4952-8d3c-7f9061738384"],[{"index":{"value":1940},"size":{"value":24}},"cbcb0699-82d7-4038-856c-b20e8e802e87"],[{"index":{"value":1977},"size":{"value":26}},"e96f0076-233c-44dc-a80c-852126f24eee"],[{"index":{"value":2016},"size":{"value":90}},"0d3a497b-f2e9-4d17-abbe-230c937d3422"],[{"index":{"value":2164},"size":{"value":32}},"7d82da26-e502-47d5-b5f0-4027d1c3e8bf"],[{"index":{"value":2357},"size":{"value":103}},"56eee8aa-59f7-4ab3-ad51-24ceaf46f95d"],[{"index":{"value":2485},"size":{"value":34}},"7b212ee3-edb1-46f6-92e6-9dca48aa6db2"]]
+{"ide":{"node":{"0d3a497b-f2e9-4d17-abbe-230c937d3422":{"position":{"vector":[-388,-60]}},"aac0f400-5fb4-4987-a12a-72977a061bce":{"position":{"vector":[-131,61]}},"ee2cf211-51f4-481b-a321-a185e2109206":{"position":{"vector":[-131,61]}},"e2844bce-6d6c-487e-9068-4bc9d1f55aa5":{"position":{"vector":[-131,-11]}},"313fe398-5442-4aca-935d-c4e0c81ac14e":{"position":{"vector":[-131,-83]}},"553d5f06-d9d7-4bff-9f66-8efa45d700b7":{"position":{"vector":[180,-2]}},"dc842597-d416-412c-997a-912a77b4dccb":{"position":{"vector":[180,-74]}},"73768217-f7c2-4504-9a9f-f5ebd62dc58d":{"position":{"vector":[180,-74]}},"c0a030bd-e641-4801-b4f1-5d83c392cc70":{"position":{"vector":[180,-146]}},"92f0b3c4-d949-4588-9446-c55446537503":{"position":{"vector":[180,-218]}},"b1e7592b-7e89-4850-917e-39e0c27ff50e":{"position":{"vector":[3,-290]}},"97c3f067-04ae-4767-8d20-c1590432bbac":{"position":{"vector":[-16,88]}},"f6abfe75-d613-4f12-ae93-3305d69226f0":{"position":{"vector":[75,88]}},"595b0b39-17e4-4d30-a300-cd1e24384a07":{"position":{"vector":[-37,-6]}},"31070036-351d-4010-ac9a-eca5872085b5":{"position":{"vector":[234,-6]}},"b65d2414-b10f-4d24-95f0-557cb3fccda1":{"position":{"vector":[144,-78]}},"578fe1fd-eb6c-4fe8-9b67-3b0073b7155d":{"position":{"vector":[18,-168]}},"4da5d7c6-bb0b-4b16-b9d5-7aae4ee79651":{"position":{"vector":[18,-168]}},"d2416b1d-49cf-4869-b91e-28d8b0500f63":{"position":{"vector":[-43,348]}},"fcf199e6-d2b1-44b7-be92-a47545d6a593":{"position":{"vector":[-388,282]},"visualization":{"show":false,"width":1027.671875,"height":193}},"06187768-8a43-434e-ba8d-287fe891f424":{"position":{"vector":[-388,282]},"visualization":{"show":true,"width":1027.671875,"height":193}},"0a5d8c4b-4f25-4ce6-8783-fa4180fa9128":{"position":{"vector":[-388,210]}},"fdc918cf-952d-4952-8d3c-7f9061738384":{"position":{"vector":[109,138]}},"cbcb0699-82d7-4038-856c-b20e8e802e87":{"position":{"vector":[-37,66]}},"e96f0076-233c-44dc-a80c-852126f24eee":{"position":{"vector":[-388,138]}},"0618b76f-4714-41a5-b8b4-748af2e075ae":{"position":{"vector":[-388,-132]}},"7d82da26-e502-47d5-b5f0-4027d1c3e8bf":{"position":{"vector":[-388,-253]}},"efad91f3-e438-4ae7-8fba-4fefd6fe7596":{"position":{"vector":[-388,-325]}},"fad30b97-8f9c-424a-9311-8d934c9bc996":{"position":{"vector":[92,-132]}},"56eee8aa-59f7-4ab3-ad51-24ceaf46f95d":{"position":{"vector":[92,-204]},"visualization":{"show":false,"height":144.51434326171875}},"7b212ee3-edb1-46f6-92e6-9dca48aa6db2":{"position":{"vector":[92,-276]}},"e20aa19f-1512-4de3-a53a-20b994652086":{"position":{"vector":[92,-366]}},"45ab42d5-116c-42ec-beac-ebd36ffff573":{"position":{"vector":[-16,-438]}}},"widget":{},"snapshot":"eJytVU1v4zYQvetXDOCDnChmLSdAgaI2mqYf2EObQ4L2ELgCLVE2G4rkktRGXeyPL4YS9RUn3UN5kubNmxk+kjOlURU8OCoLagryI7UMeKWVcUCFiMoJ+kgP4h34J+ro4d0At38+vA3+qtRRsOxW87d9HqR6KQV9nuToPnunnxtaacHsK+APbmsq+GfquJIBFSqngtze323Wm5t0s/42ityLypS2sIWnOImvIL6M95E7Gcbm5iuIv8T7KFos4MPd/e9wNKrWkabGsox9rH0ioPKfFLYRAODnBrbeQqwW3EH8XewRqQqWttCGUAfr4H8N2xYkTmUFy3lFRc/YjBhpYNx0jE1IAUOK65ZwQwqjdEdBe+Bck4pqmKf6xHKnDCZ7woquWsp+jEVRrqoDl37LFp6hsd2ec7wSz6BK/4crhdWu/8HVWJ+2We3gqdn3UHbGrxTUZZ3zBMO1nNawSqGxFz60PuON66nZJzqKCn7kzoLsSj4qkJDDFngJEr6HdA3uxNDEhGXwwyPlIrujQqDnUpKCf4J0fQF5kg78FCWROXWZrKsDMxYEKx0Yfjy5sTTeuuvsI5UeTc3mAlS1cLDFev6CZVe0568gvZh4ovXSuydt6B79heIeviKwp/1XVDx2XTt8GVDRBmRdWfCvpL1bdWXJZ669iUCpRAFrMMyudpMz4SUaYedjeK3xF9We5JewBT08j7CUDvZ0Yvf6Kj1WNaw4iWG1wyyJfA1eBvDyDPjFg7OzxXLP+C68rxxk6ruC0sx0FxX33Ntb3do+M7nOwYMIJo/utEpHIQIHO4jS7WtSGp9TvIj3idLeAWv0eDo4zI5vVF6gkIJbx2Xu5m0uP7H8+eyGuNT1cMdlwQvqGD4ntA/HN+x5QNKQthauk+BN3YbQAfXkg1KCUYladHFIrqSjfEyZeEZRRXmQ/mOtHHKZtCrTRv3NckcK6ih8AzGXxDWu7aclF75l49wjhtGipY66IqLeiwgumQ0NGs2dAym5sW7WZH+jXJIzQ2QyKEIA390mvpPp0I4OTY3jiGUv3J0yLgvWAF/tgI3e4AI+3BNtuHRCAu/Ns2MOw7FVMFey5KZiRTYMzXb29KfcAdn4TGek0KLHb9vW1SjmLAjpGskyafvTpPR4RN3GyegP55pjTat3Ld8tPp3vbzT/z1BJyYVj5n/Qt8/TKtz/nxcwoG9KOCr7VaivkDFQgpB9vrGUU55h6L0c6T6lXky4Dhds4WYTRf8Cb+QxpA=="}}
