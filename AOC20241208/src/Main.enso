@@ -1,0 +1,67 @@
+from Standard.Base import all
+from Standard.Table import all
+from Standard.Database import all
+from Standard.AWS import all
+from Standard.Google_Api import all
+from Standard.Snowflake import all
+import Standard.Examples
+import Standard.Visualization
+import local.AOC20241208
+
+map_height = 50
+map_width = 50
+
+is_antenna a =
+    a != '.'
+
+is_within_map coord =
+    ic = coord.at 0
+    jc = coord.at 1
+    ic>=0 && ic<map_height && jc>=0 && jc<map_width
+
+find_same_antennas map ia ja a =
+    antennas_coords = map.fold_with_index [] coords-> ix-> row->
+        row.fold_with_index coords acc-> jx-> point->
+            if point==a && ia!=ix && ja!=jx then acc+[[ix, jx]] else acc
+    antennas_coords
+
+find_antinode_coords ix jx iy jy =
+    di = iy - ix
+    dj = jy - jx
+    [iy+di, jy+dj]
+
+find_antinodes map ix jx a =
+    antennas_coords = find_same_antennas map ix jx a
+    antinodes_coords = antennas_coords.fold [] acc-> coords->
+        ic = coords.at 0
+        jc = coords.at 1
+        antinode_coords = find_antinode_coords ix jx ic jc
+        if is_within_map antinode_coords then acc+[antinode_coords] else acc
+    antinodes_coords.distinct
+
+search_antinodes map =
+    antinodes_coords = map.fold_with_index [] antinodes-> ix-> row->
+        row.fold_with_index antinodes acc-> jx-> a->
+            if is_antenna a then acc + (find_antinodes map ix jx a) else acc
+    antinodes_coords.distinct
+
+main =
+    quot1 = enso_project.data / 'in.txt'
+    file1 = Data.read quot1
+    map = file1.lines
+    integer1 = 3
+    integer2 = 2
+    integer3 = 0
+    integer4 = 1
+    any2 = AOC20241208.find_antinode_coords integer1 integer2 integer3 integer4
+    vector1 = map.map .characters
+    any1 = AOC20241208.search_antinodes vector1
+    any3 = AOC20241208.find_antinodes vector1 0 5 'p'
+    any4 = AOC20241208.find_same_antennas vector1 0 5 'p'
+    integer5 = any1.length
+
+
+
+#### METADATA ####
+[[{"index":{"value":802},"size":{"value":3}},"3c2bf4d5-8572-4e7a-95d7-fb5ba7ba3cdd"],[{"index":{"value":806},"size":{"value":2}},"a74ea902-6c82-4268-a347-2d1404c10564"],[{"index":{"value":809},"size":{"value":2}},"21fbdb0a-0128-410d-89fb-122568dc64a0"],[{"index":{"value":812},"size":{"value":1}},"8d74e297-c933-42af-bba0-513ef4a35e6e"],[{"index":{"value":838},"size":{"value":30}},"9564ed7a-4b33-43f8-a886-fcc184af4a8e"],[{"index":{"value":1121},"size":{"value":25}},"18db9068-c1af-474f-842a-188967f78725"],[{"index":{"value":1420},"size":{"value":28}},"ff068e29-b3e8-436e-bcf5-c2aa64546f58"],[{"index":{"value":1461},"size":{"value":15}},"fcf199e6-d2b1-44b7-be92-a47545d6a593"],[{"index":{"value":1487},"size":{"value":11}},"0118ddf0-3e78-4387-9057-0a7c83cffdc6"],[{"index":{"value":1514},"size":{"value":1}},"e43bfd61-30d3-4916-aaa6-e084b75b75d0"],[{"index":{"value":1531},"size":{"value":1}},"007acb14-ca1b-4e3c-bee0-f492d4f25f3e"],[{"index":{"value":1548},"size":{"value":1}},"664c4bb9-f814-45a7-adac-bb0636564786"],[{"index":{"value":1565},"size":{"value":1}},"a739989a-f42e-4327-b7a9-83c4709ffe1a"],[{"index":{"value":1578},"size":{"value":32}},"e8e5de5e-f782-4bdc-af20-27ddceb17515"],[{"index":{"value":1578},"size":{"value":68}},"3e763f6a-6852-4319-b8c9-dfa6b6868b5a"],[{"index":{"value":1661},"size":{"value":7}},"c5f03573-cd99-45e3-a283-850b64ddb720"],[{"index":{"value":1661},"size":{"value":19}},"7401295d-39e9-46de-872b-3ade8eca635c"],[{"index":{"value":1692},"size":{"value":28}},"e94926cd-7100-4d18-b015-21ffcabe8a41"],[{"index":{"value":1692},"size":{"value":36}},"30a98ffb-bfb0-4cac-bfdf-5aed2b941592"],[{"index":{"value":1740},"size":{"value":26}},"574be5fa-e9c6-4af3-822f-6eb46c5493c0"],[{"index":{"value":1740},"size":{"value":42}},"082eb8de-e37d-434f-94e0-17966f570837"],[{"index":{"value":1794},"size":{"value":30}},"9871a8ef-1114-491d-bffb-046e8226b19e"],[{"index":{"value":1794},"size":{"value":38}},"73c7754f-6e72-4242-b1fa-ca897a3bf541"],[{"index":{"value":1794},"size":{"value":46}},"21853d3a-4879-4204-ba02-e1954dd74209"],[{"index":{"value":1856},"size":{"value":11}},"8a0cc16c-74f7-4e13-bac7-b8e32c312fe6"]]
+{"ide":{"node":{"3c2bf4d5-8572-4e7a-95d7-fb5ba7ba3cdd":{"position":{"vector":[-16,88]}},"a74ea902-6c82-4268-a347-2d1404c10564":{"position":{"vector":[91,88]}},"21fbdb0a-0128-410d-89fb-122568dc64a0":{"position":{"vector":[185,88]}},"8d74e297-c933-42af-bba0-513ef4a35e6e":{"position":{"vector":[279,88]}},"9564ed7a-4b33-43f8-a886-fcc184af4a8e":{"position":{"vector":[-16,16]}},"18db9068-c1af-474f-842a-188967f78725":{"position":{"vector":[-16,-128]}},"ff068e29-b3e8-436e-bcf5-c2aa64546f58":{"position":{"vector":[111,368]}},"fcf199e6-d2b1-44b7-be92-a47545d6a593":{"position":{"vector":[111,296]},"visualization":{"show":false,"width":1027.671875,"height":193}},"0118ddf0-3e78-4387-9057-0a7c83cffdc6":{"position":{"vector":[111,224]}},"e43bfd61-30d3-4916-aaa6-e084b75b75d0":{"position":{"vector":[531,296]}},"007acb14-ca1b-4e3c-bee0-f492d4f25f3e":{"position":{"vector":[653,323]}},"664c4bb9-f814-45a7-adac-bb0636564786":{"position":{"vector":[794,323]}},"a739989a-f42e-4327-b7a9-83c4709ffe1a":{"position":{"vector":[904,296]}},"3e763f6a-6852-4319-b8c9-dfa6b6868b5a":{"position":{"vector":[390,213]}},"e8e5de5e-f782-4bdc-af20-27ddceb17515":{"position":{"vector":[390,213]}},"7401295d-39e9-46de-872b-3ade8eca635c":{"position":{"vector":[111,152]}},"c5f03573-cd99-45e3-a283-850b64ddb720":{"position":{"vector":[111,152]}},"30a98ffb-bfb0-4cac-bfdf-5aed2b941592":{"position":{"vector":[83,80]}},"e94926cd-7100-4d18-b015-21ffcabe8a41":{"position":{"vector":[111,57]}},"082eb8de-e37d-434f-94e0-17966f570837":{"position":{"vector":[471,80]}},"574be5fa-e9c6-4af3-822f-6eb46c5493c0":{"position":{"vector":[174,-67]}},"21853d3a-4879-4204-ba02-e1954dd74209":{"position":{"vector":[-521,80]}},"73c7754f-6e72-4242-b1fa-ca897a3bf541":{"position":{"vector":[-293,-15]}},"9871a8ef-1114-491d-bffb-046e8226b19e":{"position":{"vector":[-293,-15]}},"8a0cc16c-74f7-4e13-bac7-b8e32c312fe6":{"position":{"vector":[83,8]},"visualization":{"show":true}}},"widget":{},"import":{},"snapshot":"eJyNVE2P2jAQvedXzF6gFUsK7K7UQ420/VCPPWzVHhCKZh2HjGvsNHZL6K+v7CSQBLJaTmTmvTdfL8lKs4cnhzrFMo0/ohVA+8KUDlCpKOtlv+OzeiH9GR0+vyjw+PNpPPnVmJ0SyWNB45gnbQ6Zwl+9Gs3fE+hLhftCCXuR+EH2Dyr6h46MbrPKcFTx47dPq8XqfrlavI+iPRZJLmiXO2DwsAjPB0pdXj9GZBPUTmiNgMAiAACEGwbTeBqSB3I56WSPBXBjyrTBEAdWB2J0sAgx2YstG9yaLWAyAeIfOq1MJiDbjKwzoakoykinicW9aNuy4GsTgux02KSSUM0C85g4MyoN/SakU1HBZlt3Y+droGq+htIc5usg4H+lOVxQGj3kfL4G6TmFIe06rDBUVocZwzAa3jCqwih4w2QFLhfaa8w2G6puQVbbLQhlhY9d67+ZGrUjbVLRTkUVyAroCPLYzJ0SMB+YA1V1QALz6TnIOrCh4yylW5DHWSq3A+FmlUF2fJVjF6hpLakWPLMGOmGz/gL1Kts7nNZ49o89G6hvInt2UbfmoNGRpXGQPOrcq+/kIel8sEHm8m69ueOUrCPNXRRZgSXPB6tmY9sasesJ+XrHngt2TIuXhu295+28MIM34w55++rh90i6Gfb3H+OWwEBoa5KiNFJwF6foEN7BlHTsKjcNwIyU8ED/pY1LgWlNDbmwuxoRK9LC1t8S7cROlJ501w2sgMGqG7gD1jiqCdwDa5yE+ujhnU9kfN1Gba1TjZN2qxn0/gruTGjJn9T3HfMcS+ROlLatuBxUvPBKo9Li717q8ISGBTzAtJi2rPtrrP57fI3ZjPMQ3uHjMlZC71we/QdbSFR6"}}
