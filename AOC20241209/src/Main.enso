@@ -1,0 +1,62 @@
+from Standard.Base import all
+from Standard.Table import all
+from Standard.Database import all
+from Standard.AWS import all
+from Standard.Google_Api import all
+from Standard.Snowflake import all
+import Standard.Examples
+import Standard.Visualization
+import local.AOC20241209
+
+file_index position = position.div 2
+is_file ix = ix%2 == 0
+
+p ix n  =
+    go i k sum = if k<1 then sum else @Tail_Call go i+1 k-1 (sum + i*n)
+    go ix n 0
+
+to_sparse file =
+    sparse = file.fold_with_index [] acc-> ix-> size->
+        id = if ix%2 == 0 then ix.div 2 else -1
+        acc + Vector.fill size id
+    sparse
+
+compact file =
+    last_position = file.length - 1
+    go lx rx checksum =
+        if rx<lx then checksum else
+            idl = file.at lx
+            if idl != -1 then @Tail_Call go lx+1 rx (checksum + lx*idl) else
+                idr = file.at rx
+                if idr != -1 then @Tail_Call go lx+1 rx-1 (checksum + lx*idr) else
+                    @Tail_Call go lx rx-1 checksum
+
+    go 0 last_position 0
+
+compact2 dense sparse =
+    last_dense_position = dense.length - 1
+    last_sparse_position = sparse.length - 1
+    go ld rd ls rs checksum =
+        if rs<ls then checksum else
+            n = dense.at ld
+            if is_file ld then @Tail_Call go ld+1 rd ls+ld rs (p ls n) else
+                Nothing
+
+    go 0 last_dense_position 0 last_sparse_position 0
+
+main =
+    text1 = 'test.txt'
+    text2 = 'in.txt'
+    quot1 = enso_project.data / text1
+    file1 = Data.read quot1
+    text_file = file1.characters
+    vector1 = text_file.drop ..Last
+    dense_file = vector1.map .parse_integer
+    sparse_file = AOC20241209.to_sparse dense_file
+    any1 = AOC20241209.compact sparse_file
+    integer1 = file1.length
+
+
+#### METADATA ####
+[[{"index":{"value":1392},"size":{"value":10}},"62bb3d99-a375-45ec-83cf-0cdf3eb35af1"],[{"index":{"value":1415},"size":{"value":8}},"6746ac74-f47a-408d-ade3-e15ae3de226e"],[{"index":{"value":1436},"size":{"value":25}},"e26a92a1-6162-44bc-b707-86ee7be5c95b"],[{"index":{"value":1474},"size":{"value":15}},"fcf199e6-d2b1-44b7-be92-a47545d6a593"],[{"index":{"value":1506},"size":{"value":16}},"4e2c5b37-43e8-4a2f-bcdb-095c539c65ea"],[{"index":{"value":1537},"size":{"value":14}},"8288faf1-0215-487d-98fe-57ab19004b3b"],[{"index":{"value":1537},"size":{"value":21}},"88147194-5fc3-4bc8-a4cf-91c8848e1c68"],[{"index":{"value":1576},"size":{"value":26}},"04e6eae2-1e4a-48a3-9792-cec9983e3933"],[{"index":{"value":1621},"size":{"value":21}},"93b1afb6-ac26-40ff-a5a7-4b4428366a72"],[{"index":{"value":1621},"size":{"value":32}},"bd22b0d7-f1c9-4651-8f31-849a97d0f385"],[{"index":{"value":1665},"size":{"value":19}},"caef06a6-2fe3-4739-aa1f-e2bae69fb4a9"],[{"index":{"value":1665},"size":{"value":31}},"d6e2ced2-53ab-44d3-bd1b-804907899d33"],[{"index":{"value":1712},"size":{"value":12}},"f878e1eb-9233-4d4a-947d-aceab0bbe0ee"]]
+{"ide":{"node":{"62bb3d99-a375-45ec-83cf-0cdf3eb35af1":{"position":{"vector":[-145,475]}},"6746ac74-f47a-408d-ade3-e15ae3de226e":{"position":{"vector":[-335,475]}},"e26a92a1-6162-44bc-b707-86ee7be5c95b":{"position":{"vector":[-362,384]}},"fcf199e6-d2b1-44b7-be92-a47545d6a593":{"position":{"vector":[-388,312]},"visualization":{"show":false,"width":341.95758056640625,"height":193}},"4e2c5b37-43e8-4a2f-bcdb-095c539c65ea":{"position":{"vector":[-388,258]}},"88147194-5fc3-4bc8-a4cf-91c8848e1c68":{"position":{"vector":[-388,186]}},"8288faf1-0215-487d-98fe-57ab19004b3b":{"position":{"vector":[-294,188]}},"04e6eae2-1e4a-48a3-9792-cec9983e3933":{"position":{"vector":[-388,89]}},"bd22b0d7-f1c9-4651-8f31-849a97d0f385":{"position":{"vector":[-388,-3]}},"93b1afb6-ac26-40ff-a5a7-4b4428366a72":{"position":{"vector":[-347,17]}},"d6e2ced2-53ab-44d3-bd1b-804907899d33":{"position":{"vector":[-372,-93]},"visualization":{"show":true}},"caef06a6-2fe3-4739-aa1f-e2bae69fb4a9":{"position":{"vector":[-315,-136]}},"f878e1eb-9233-4d4a-947d-aceab0bbe0ee":{"position":{"vector":[-46,280]}}},"widget":{},"import":{},"snapshot":"eJyFVE1v2zAMvftXcIehH4E1O9hlQFys64Zdhu3QojsMg8FacqKFkTxJbbX++kGS4zhO0/pkkI+Pj3ySWqM3cO1QcTScfUIrQG46bRwgUdbuZW/wjl5If0aHdy8SXP68Pp78qvWSRH3ZyeOYa6UfW8L1Xo/+dwB98bjpSNiDxK2090jyCZ3Uapsl3SCxyx9X82L+vpwXH7KslSRqqbjw0GkrAxqq4Zdx+QDzTNo64EB6qED6t3OoKiiyrAsRBVBlAABLDRLWYO83AdXCelGCWwkVI4KsgI83KKm+QqIInpWwzks4DfkZyHN1NvAE2iLLnK5th8YKiP1Tnz5SxRhrNfH6UbpVP8Wv34BNk1+A9PkFWPkk8otYFj7Jk7RhhiRQ+jRoUpmXAx6bBmZwKxqnDWslUSQEyUdCsqzRmw4bN9ZIaF09WmiUSkIt3QpyKLdzkgfjoVmJZh3XthPagvEL8knfAAj6BkwaiLbs6ID8frKN+TcV5L0T+waQn5Wh/+nAPwPy55LT2WGn1M2Muhl/CGgj5rWOwfRpT3OkZ/imJIliy5Btt1lM1l4M1syBC2XFcHR2HsX42KkYmFoVoal4jE2R53zlYDiQBWOPuWsXZF9zd6cnmMsPzO2vJfFnd83DroOKWZBj4bQLitSRPX/XbiXVcrrMyX6K51dRZNkGpepHdMK7Eio4ccI65rw7GcLzEJZqF/x7ryNWKKvrzug/onGMo0N4l3giKowZUOHZZUYgT3UDbdpDOpola1ZosHHC2Ah4iNc3lA9Qxo3ugLFvaF3EpDF7lr6AbbADliaVyomlMKNrvwWPXlO2e652fLEE1b9ygt0+GiO2CO07lcM06XT9B5bCEfg="}}
