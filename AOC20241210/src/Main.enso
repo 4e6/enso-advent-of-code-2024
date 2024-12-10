@@ -15,31 +15,31 @@ map_at map ix jx =
     map.at ix . at jx
 
 go_up map p i j =
-    if i<=0 then [] else
+    if i<=0 then 0 else
         n = map_at map i-1 j
-        if n != p+1 then [] else
-            if n == 9 then [[i-1, j]] else
+        if n != p+1 then 0 else
+            if n == 9 then 1 else
                     (go_up map n i-1 j) + (go_right map n i-1 j) + (go_down map n i-1 j) + (go_left map n i-1 j)
 
 go_right map p i j =
-    if j>=map_width-1 then [] else
+    if j>=map_width-1 then 0 else
         n = map_at map i j+1
-        if n != p+1 then [] else
-            if n == 9 then [[i, j+1]] else
+        if n != p+1 then 0 else
+            if n == 9 then 1 else
                 (go_up map n i j+1) + (go_right map n i j+1) + (go_down map n i j+1) + (go_left map n i j+1)
 
 go_down map p i j =
-    if i>=map_height-1 then [] else
+    if i>=map_height-1 then 0 else
         n = map_at map i+1 j
-        if n != p+1 then [] else
-            if n == 9 then [[i+1, j]] else
+        if n != p+1 then 0 else
+            if n == 9 then 1 else
                 (go_up map n i+1 j) + (go_right map n i+1 j) + (go_down map n i+1 j) + (go_left map n i+1 j)
 
 go_left map p i j =
-    if j<=0 then [] else
+    if j<=0 then 0 else
         n = map_at map i j-1
-        if n != p+1 then [] else
-            if n == 9 then [[i, j-1]] else
+        if n != p+1 then 0 else
+            if n == 9 then 1 else
                 (go_up map n i j-1) + (go_right map n i j-1) + (go_down map n i j-1) + (go_left map n i j-1)
 
 count_trailheads map p ix jx =
@@ -48,11 +48,10 @@ count_trailheads map p ix jx =
     down = go_down map p ix jx
     left = go_left map p ix jx
     sum = up + right + down + left
-    sum.distinct.length
+    sum
 
 trailheads map =
     map.fold_with_index 0 score-> ix-> row->
-        IO.println ('row: ' + ix.to_text)
         row.fold_with_index score acc-> jx-> v->
             if v==0 then acc + count_trailheads map v ix jx else acc
 
