@@ -1,0 +1,72 @@
+from Standard.Base import all
+from Standard.Table import all
+from Standard.Database import all
+from Standard.AWS import all
+from Standard.Google_Api import all
+from Standard.Snowflake import all
+import Standard.Examples
+import Standard.Visualization
+import local.AOC20241210
+
+map_height = 58
+map_width = 58
+
+map_at map ix jx =
+    map.at ix . at jx
+
+go_up map p i j =
+    if i<=0 then [] else
+        n = map_at map i-1 j
+        if n != p+1 then [] else
+            if n == 9 then [[i-1, j]] else
+                    (go_up map n i-1 j) + (go_right map n i-1 j) + (go_down map n i-1 j) + (go_left map n i-1 j)
+
+go_right map p i j =
+    if j>=map_width-1 then [] else
+        n = map_at map i j+1
+        if n != p+1 then [] else
+            if n == 9 then [[i, j+1]] else
+                (go_up map n i j+1) + (go_right map n i j+1) + (go_down map n i j+1) + (go_left map n i j+1)
+
+go_down map p i j =
+    if i>=map_height-1 then [] else
+        n = map_at map i+1 j
+        if n != p+1 then [] else
+            if n == 9 then [[i+1, j]] else
+                (go_up map n i+1 j) + (go_right map n i+1 j) + (go_down map n i+1 j) + (go_left map n i+1 j)
+
+go_left map p i j =
+    if j<=0 then [] else
+        n = map_at map i j-1
+        if n != p+1 then [] else
+            if n == 9 then [[i, j-1]] else
+                (go_up map n i j-1) + (go_right map n i j-1) + (go_down map n i j-1) + (go_left map n i j-1)
+
+count_trailheads map p ix jx =
+    up = go_up map p ix jx
+    right = go_right map p ix jx
+    down = go_down map p ix jx
+    left = go_left map p ix jx
+    sum = up + right + down + left
+    sum.distinct.length
+
+trailheads map =
+    map.fold_with_index 0 score-> ix-> row->
+        IO.println ('row: ' + ix.to_text)
+        row.fold_with_index score acc-> jx-> v->
+            if v==0 then acc + count_trailheads map v ix jx else acc
+
+main =
+    text1 = 'in.txt'
+    quot1 = enso_project.data / text1
+    file1 = Data.read quot1
+    vector1 = file1.lines
+    map = vector1.map row-> row.characters.map .parse_integer
+    any1 = AOC20241210.trailheads map
+    any1
+
+
+
+#### METADATA ####
+[[{"index":{"value":1970},"size":{"value":10}},"4b0c41bc-c129-4688-8667-269e06853849"],[{"index":{"value":1993},"size":{"value":25}},"f2240bf3-8345-4ec1-9e06-ac2a049abd81"],[{"index":{"value":2031},"size":{"value":9}},"84217c6f-54b6-445c-bf85-ae5da6235d92"],[{"index":{"value":2031},"size":{"value":15}},"fcf199e6-d2b1-44b7-be92-a47545d6a593"],[{"index":{"value":2061},"size":{"value":11}},"fcf79ad8-edc7-47c8-9042-ebffef2f7764"],[{"index":{"value":2083},"size":{"value":51}},"060cd155-5c76-43dd-ba26-1abd583088ef"],[{"index":{"value":2146},"size":{"value":22}},"c70131b1-1be5-450d-a2b9-ebb4daf75ba6"],[{"index":{"value":2146},"size":{"value":26}},"4c34a70a-055a-4ca5-bd20-e0e4c8ffe5e6"]]
+{"ide":{"node":{"4b0c41bc-c129-4688-8667-269e06853849":{"position":{"vector":[-28,416]}},"f2240bf3-8345-4ec1-9e06-ac2a049abd81":{"position":{"vector":[-204,349]}},"fcf199e6-d2b1-44b7-be92-a47545d6a593":{"position":{"vector":[-397,277]},"visualization":{"show":false,"width":438.4146728515625,"height":193}},"84217c6f-54b6-445c-bf85-ae5da6235d92":{"position":{"vector":[-397,258]},"visualization":{"show":true,"width":438.4146728515625,"height":193}},"fcf79ad8-edc7-47c8-9042-ebffef2f7764":{"position":{"vector":[-397,205]}},"060cd155-5c76-43dd-ba26-1abd583088ef":{"position":{"vector":[-397,133]}},"4c34a70a-055a-4ca5-bd20-e0e4c8ffe5e6":{"position":{"vector":[-397,44]},"visualization":{"show":true}},"c70131b1-1be5-450d-a2b9-ebb4daf75ba6":{"position":{"vector":[-435,46]}}},"widget":{},"snapshot":"eJy9Vctu2zAQvOsrtqe0UKRaQQ8pEBpIH+ixhxTtwTCEDUVZVGlSpWhb7dcXXD0sOVZgoA+fxJ3Z5c4OTebWbOHBoc7QZvE7rAXIbWWsA1QqyCfoF3xUz8Af0OHjswXuvz3Mg5+M2SiR3ldynvOgzSFX+H2yR/c5kD42uK2UqJ8AX2W9QyV/oZNG96gyHFV8//n9zeLmTXKTLIJgi1VaCLkpHDC4peVBZq6gFS3RwRYrkA2UDbAAAPw6RudDMaCDsgmCjUl3VULMCiSUHVMDg3GRKIGSAJmDhhcMqjABVwgNCxCqFoQNOGPwtkWTKdoxJNwxWJzN738vqTHaXLfbv4KQopZEnwEyc9Dn4krkU36n+olo39kdO9/X7EAuGcplg/lv0o9lTtSXS3Y8SJdMAcow+fMpnCj2Rc8qHgNjxeP4WDHFSfHAPrW7Fdz9kS5RHP4V308Uh3MehzMehzMeh4PHQ/TU4ksPOJTRv7A2mrM2mrE2mrE28tZys9MudRalKgRmda94dOftKmBwbKKFKoJsd31OmhkTqBPCh57GMDVE8NDaGK53W2B+/7DbKWwLhpTYU4LgpP3jVZ0blaUH6YpU6kw0sFpDzY0V0RJkEy3BmkO0HDyw5vAkg+iAnEdLKH3KfpTQmbZn/YlAzsPVSjbXUDbXcHa2+1bhet26i5z7x0bqrmsnGpcAgysnahe7xl1R+MfOUFjo2qSVNaXgLs7QIbxuU4iVSyU8y7/RsRWYtXmE7QV3xnqUWLGSWtT9oID1eOxXNBYaBy/QInfC1gTEFdpapFI7sRGWslH/9EVHT2s8VRz8Bo1Iex0=","import":{}}}
