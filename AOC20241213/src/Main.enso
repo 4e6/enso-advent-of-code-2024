@@ -8,13 +8,16 @@ import Standard.Examples
 import Standard.Visualization
 import local.AOC20241213
 
+prize_inc = 10000000000000
+# prize_inc = 0
+
 ## ICON group
 parse_button node1 =
     any2 = node1.find 'Button \\w: X[+](\\d+), Y[+](\\d+)'
     vector2 = any2.groups
     node2 = vector2.at 1
     node3 = vector2.at 2
-    vector3 = [node2, node3]
+    vector3 = [node2.to_decimal, node3.to_decimal]
     vector3
 
 ## ICON group
@@ -23,7 +26,7 @@ parse_prize node3 =
     vector2 = any3.groups
     node4 = vector2.at 1
     node5 = vector2.at 2
-    vector4 = [node4, node5]
+    vector4 = [prize_inc + node4.to_decimal, prize_inc + node5.to_decimal]
     vector4
 
 ## ICON group
@@ -36,8 +39,7 @@ parse_machine any1 =
     vector3 = Main.parse_button node1
     vector1 = [vector3, any2, vector4]
     vector2 = vector1.flatten
-    node4 = vector2.map .parse_integer
-    node4
+    vector2
 
 parse_input lines =
     go input acc =
@@ -69,21 +71,22 @@ solve machine =
     d = machine.at 3
     k = machine.at 4
     l = machine.at 5
-    y = (l*a - b*k) / (d*a - c*b)
+    y = (l*a - b*k).divide (d*a - c*b) (Math_Context.new 15)
     if y.floor != y then [0, 0] else
-        x = (k - y*c) / a
-        [x, y]
+        x = (k - y*c).divide a (Math_Context.new 15)
+        if x.floor != x then [0, 0] else
+            [x, y]
 
 to_tokens result =
     (3 * result.at 0) + result.at 1
 
 compute input =
-    input.fold_with_index 0 acc-> ix-> machine->
+    input.fold 0.to_decimal acc-> machine->
         result = solve machine
         acc + to_tokens result
 
 main =
-    text1 = 'bench.txt'
+    text1 = 'in.txt'
     quot1 = enso_project.data / text1
     file1 = Data.read quot1
     vector1 = file1.lines
@@ -91,7 +94,6 @@ main =
     vector3 = Main.parse_machine any1
     any2 = AOC20241213.parse_input vector1
     node1 = any2.at 0
-    IO.println 'node1'
     any3 = AOC20241213.solve node1
     any4 = AOC20241213.to_tokens any3
     any5 = AOC20241213.compute any2
